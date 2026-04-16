@@ -475,15 +475,24 @@ def check_latest_surface_sync(profile: dict[str, Any]) -> list[dict[str, Any]]:
         )
     else:
         expected_governance = wiki_runtime.build_governance_latest_body(governance_payload, governance_report_paths)
-        actual_governance = wiki_runtime.GOVERNANCE_LATEST.read_text(encoding="utf-8")
-        if normalize_surface_text(actual_governance) != normalize_surface_text(expected_governance):
+        if not wiki_runtime.GOVERNANCE_LATEST.exists():
             findings.append(
                 {
                     "check": "latest_surface_sync",
                     "path": "reports/governance_latest.md",
-                    "message": "governance_latest is out of sync with current renderer output",
+                    "message": "governance_latest is missing",
                 }
             )
+        else:
+            actual_governance = wiki_runtime.GOVERNANCE_LATEST.read_text(encoding="utf-8")
+            if normalize_surface_text(actual_governance) != normalize_surface_text(expected_governance):
+                findings.append(
+                    {
+                        "check": "latest_surface_sync",
+                        "path": "reports/governance_latest.md",
+                        "message": "governance_latest is out of sync with current renderer output",
+                    }
+                )
 
     supervisor_cached = wiki_runtime.read_state(wiki_runtime.SUPERVISOR_CYCLE_CACHE)
     supervisor_payload = supervisor_cached.get("payload")
@@ -497,15 +506,24 @@ def check_latest_surface_sync(profile: dict[str, Any]) -> list[dict[str, Any]]:
         )
     else:
         expected_supervisor = wiki_runtime.build_supervisor_latest_body(supervisor_payload)
-        actual_supervisor = wiki_runtime.SUPERVISOR_LATEST.read_text(encoding="utf-8")
-        if normalize_surface_text(actual_supervisor) != normalize_surface_text(expected_supervisor):
+        if not wiki_runtime.SUPERVISOR_LATEST.exists():
             findings.append(
                 {
                     "check": "latest_surface_sync",
                     "path": "reports/supervisor_latest.md",
-                    "message": "supervisor_latest is out of sync with current renderer output",
+                    "message": "supervisor_latest is missing",
                 }
             )
+        else:
+            actual_supervisor = wiki_runtime.SUPERVISOR_LATEST.read_text(encoding="utf-8")
+            if normalize_surface_text(actual_supervisor) != normalize_surface_text(expected_supervisor):
+                findings.append(
+                    {
+                        "check": "latest_surface_sync",
+                        "path": "reports/supervisor_latest.md",
+                        "message": "supervisor_latest is out of sync with current renderer output",
+                    }
+                )
 
     governance = wiki_runtime.read_cycle_payload(wiki_runtime.GOVERNANCE_CYCLE_CACHE, ["report_path"])
     supervisor = wiki_runtime.read_cycle_payload(wiki_runtime.SUPERVISOR_CYCLE_CACHE, ["report_path"])
@@ -521,15 +539,24 @@ def check_latest_surface_sync(profile: dict[str, Any]) -> list[dict[str, Any]]:
     operator_payload["action_plan"] = action_plan
     operator_payload["actions"] = action_plan.get("actions", [])
     expected_operator = wiki_runtime.build_operator_latest_body(operator_payload)
-    actual_operator = wiki_runtime.OPERATOR_LATEST.read_text(encoding="utf-8")
-    if normalize_surface_text(actual_operator) != normalize_surface_text(expected_operator):
+    if not wiki_runtime.OPERATOR_LATEST.exists():
         findings.append(
             {
                 "check": "latest_surface_sync",
                 "path": "reports/operator_latest.md",
-                "message": "operator_latest is out of sync with current renderer output",
+                "message": "operator_latest is missing",
             }
         )
+    else:
+        actual_operator = wiki_runtime.OPERATOR_LATEST.read_text(encoding="utf-8")
+        if normalize_surface_text(actual_operator) != normalize_surface_text(expected_operator):
+            findings.append(
+                {
+                    "check": "latest_surface_sync",
+                    "path": "reports/operator_latest.md",
+                    "message": "operator_latest is out of sync with current renderer output",
+                }
+            )
 
     return findings
 
@@ -2513,25 +2540,35 @@ def check_operator_alignment(profile: dict[str, Any]) -> list[dict[str, Any]]:
             }
         )
 
-    supervisor_latest = (ROOT / "reports" / "supervisor_latest.md").read_text(encoding="utf-8")
-    latest_state = markdown_field(supervisor_latest, "state")
-    latest_summary = markdown_field(supervisor_latest, "summary")
-    if latest_state != operator_state:
+    supervisor_latest_path = ROOT / "reports" / "supervisor_latest.md"
+    if not supervisor_latest_path.exists():
         findings.append(
             {
                 "check": "operator_alignment",
                 "path": "reports/supervisor_latest.md",
-                "message": f"supervisor_latest state mismatch: {latest_state} != {operator_state}",
+                "message": "supervisor_latest is missing",
             }
         )
-    if latest_summary != operator_summary:
-        findings.append(
-            {
-                "check": "operator_alignment",
-                "path": "reports/supervisor_latest.md",
-                "message": "supervisor_latest summary mismatch",
-            }
-        )
+    else:
+        supervisor_latest = supervisor_latest_path.read_text(encoding="utf-8")
+        latest_state = markdown_field(supervisor_latest, "state")
+        latest_summary = markdown_field(supervisor_latest, "summary")
+        if latest_state != operator_state:
+            findings.append(
+                {
+                    "check": "operator_alignment",
+                    "path": "reports/supervisor_latest.md",
+                    "message": f"supervisor_latest state mismatch: {latest_state} != {operator_state}",
+                }
+            )
+        if latest_summary != operator_summary:
+            findings.append(
+                {
+                    "check": "operator_alignment",
+                    "path": "reports/supervisor_latest.md",
+                    "message": "supervisor_latest summary mismatch",
+                }
+            )
 
     return findings
 
