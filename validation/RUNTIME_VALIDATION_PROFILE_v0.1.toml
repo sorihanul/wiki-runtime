@@ -1,0 +1,95 @@
+name = "wiki_runtime_runtime_validation"
+mode = "strict"
+
+[checks]
+require_clean_lint = true
+require_doc_alignment = true
+require_basis_policy = true
+require_latest_surface_sync = true
+require_daily_surface_sync = true
+require_cycle_artifact_suppression = true
+require_cycle_snapshot_sensitivity = true
+require_day_boundary_stability = true
+require_snapshot_precision = true
+require_queue_field_policy = true
+require_lint_field_policy = true
+require_load_test_report = true
+require_artifact_hygiene = true
+require_operator_alignment = true
+require_operator_state_model = true
+require_surface_state_rendering = true
+require_temp_surface_sandbox = true
+require_lock_sandbox = true
+require_archive_sandbox = true
+require_failure_guidance_model = true
+require_generated_example_sync = true
+
+[doc_alignment]
+files = ["README.md", "START_HERE.md", "MAP.md", "RETRIEVAL_POLICY.md"]
+required_terms = ["wiki", "canon", "operator"]
+
+[basis_policy]
+required_terms = [
+  "evidence_mode",
+  "confidence_basis",
+  "source_count_basis",
+]
+
+[load_test]
+report_glob = "reports/load_test_m_*.md"
+max_total_runtime_sec = 30.0
+max_compile_repeat_sec = 3.0
+max_report_age_hours = 24.0
+require_recent_query_focus = "top3_matched: `3`"
+require_conflict_query_focus = "top3_matched: `3`"
+
+[artifact_hygiene]
+forbidden_globs = [
+  "wiki_lite/RAW/basis-review-queue-smoke*.md",
+  "wiki_lite/WIKI/basis-review-queue-smoke*.md",
+  "wiki_lite/LOG/basis-review-queue-smoke*.md",
+  "wiki/syntheses/basis-review-queue-smoke*.md",
+]
+
+[operator_alignment]
+mode = "runtime"
+supervisor_mode = "intake"
+required_states = [
+  "sync_runtime",
+  "repair_runtime",
+  "apply_knowledge_changes",
+  "idle_watch",
+]
+
+[operator_state_model]
+cases = [
+  "sync_runtime",
+  "repair_runtime",
+  "apply_knowledge_changes",
+  "idle_watch",
+]
+
+[surface_state_rendering]
+cases = [
+  "sync_runtime",
+  "repair_runtime",
+  "apply_knowledge_changes",
+  "idle_watch",
+]
+
+[temp_surface_sandbox]
+cases = [
+  "sync_runtime",
+  "repair_runtime",
+  "apply_knowledge_changes",
+  "idle_watch",
+]
+
+[generated_example]
+path = "validation/VALIDATION_FAILURE_EXAMPLE.md"
+required_markers = [
+  "# validation-report",
+  "## repair focus",
+  "## next steps",
+  "## findings",
+]
